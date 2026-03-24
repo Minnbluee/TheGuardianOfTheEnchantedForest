@@ -11,11 +11,19 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private Sprite heartEmpty;
 
     [Header("HUD - Diamantes")]
-    [SerializeField] private TMP_Text diamondText;
     [SerializeField] private int diamondsRequired = 3;
+    private TMP_Text diamondText;
 
     [Header("HUD - Puntos")]
-    [SerializeField] private TMP_Text scoreText;
+    private TMP_Text scoreText;
+
+    public void SetupHUD(TMP_Text diamonds, TMP_Text score)
+    {
+        diamondText = diamonds;
+        scoreText = score;
+        UpdateDiamondUI();
+        UpdateScoreUI();
+    }
 
     private int _currentDiamonds = 0;
     private int _currentScore = 0;

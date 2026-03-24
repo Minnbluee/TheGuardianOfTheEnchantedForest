@@ -4,12 +4,16 @@ using TMPro;
 
 public class TestSceneController : MonoBehaviour
 {
+    [Header("HUD")]
+    [SerializeField] private TMP_Text diamondText;
+    [SerializeField] private TMP_Text scoreText;
+
     [Header("Debug Info (opcional)")]
     [SerializeField] private TMP_Text debugText;
 
     private void Start()
     {
-       
+        UIManager.Instance?.SetupHUD(diamondText, scoreText);
         AudioManager.Instance?.PlayGameplayMusic();
 
         UIManager.Instance?.ResetHearts();
