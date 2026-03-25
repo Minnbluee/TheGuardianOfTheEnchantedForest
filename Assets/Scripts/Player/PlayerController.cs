@@ -17,8 +17,6 @@ public class PlayerController : MonoBehaviour
         Hurt
     }
 
-    
-
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 6f;
 
