@@ -1,19 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// Controla el movimiento del jugador usando una Máquina de Estados (FSM).
-/// Lee las entradas del InputHandler y aplica física con Rigidbody2D.
-///
-/// Setup en Unity:
-///   - Agregar este script al GameObject del jugador.
-///   - El jugador necesita: Rigidbody2D, Collider2D, y este script.
-///   - Configurar Rigidbody2D: Gravity Scale = 3, Freeze Rotation Z = true.
-///   - Asignar el Layer "Ground" en el Inspector para la detección de suelo.
-/// </summary>
+
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    // ─── Estados de la FSM ─────────────────────────────────────────────────────
+    
 
     private enum PlayerState
     {
@@ -26,7 +17,7 @@ public class PlayerController : MonoBehaviour
         Hurt
     }
 
-    // ─── Parámetros configurables en el Inspector ──────────────────────────────
+    
 
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 6f;
@@ -39,14 +30,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
 
-    // ─── Referencias internas ──────────────────────────────────────────────────
+    
 
     private Rigidbody2D _rb;
     private PlayerState _currentState;
     private bool _isGrounded;
     private bool _facingRight = true;
-
-    // ─── Unity Lifecycle ───────────────────────────────────────────────────────
 
     private void Awake()
     {
@@ -69,11 +58,10 @@ public class PlayerController : MonoBehaviour
         ApplyMovement();
     }
 
-    // ─── FSM ───────────────────────────────────────────────────────────────────
 
     private void HandleFSM()
     {
-        // El estado Hurt solo se sale desde afuera (via TakeDamage)
+       
         if (_currentState == PlayerState.Hurt) return;
 
         switch (_currentState)
@@ -96,29 +84,28 @@ public class PlayerController : MonoBehaviour
 
     private void HandleGroundedStates()
     {
-        // Agacharse tiene prioridad
+        
         if (InputHandler.Instance.CrouchHeld)
         {
             ChangeState(PlayerState.Crouch);
             return;
         }
 
-        // Saltar
         if (InputHandler.Instance.JumpPressed)
         {
-            _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
             ChangeState(PlayerState.Jump);
             return;
         }
 
-        // Atacar (bloquea movimiento horizontal)
+      
         if (InputHandler.Instance.AttackPressed)
         {
             ChangeState(PlayerState.Attack);
             return;
         }
 
-        // Moverse o quedarse quieto
+        
         if (Mathf.Abs(InputHandler.Instance.MoveInput) > 0.01f)
             ChangeState(PlayerState.Move);
         else
@@ -127,14 +114,14 @@ public class PlayerController : MonoBehaviour
 
     private void HandleAirborneStates()
     {
-        // Subiendo → Jump, bajando → Fall
-        if (_rb.velocity.y < -0.1f)
+        
+        if (_rb.linearVelocity.y < -0.1f)
             ChangeState(PlayerState.Fall);
-        else if (_rb.velocity.y > 0.1f)
+        else if (_rb.linearVelocity.y > 0.1f)
             ChangeState(PlayerState.Jump);
 
-        // Aterrizó
-        if (_isGrounded && _rb.velocity.y <= 0)
+        
+        if (_isGrounded && _rb.linearVelocity.y <= 0)
         {
             ChangeState(Mathf.Abs(InputHandler.Instance.MoveInput) > 0.01f
                 ? PlayerState.Move
@@ -155,31 +142,30 @@ public class PlayerController : MonoBehaviour
         if (_currentState == newState) return;
 
         _currentState = newState;
-        Debug.Log($"[Player] Estado: {_currentState}"); // Útil para debug
+        Debug.Log($"[Player] Estado: {_currentState}"); 
     }
 
-    // ─── Movimiento físico ─────────────────────────────────────────────────────
 
     private void ApplyMovement()
     {
-        // Durante Attack o Hurt no hay movimiento horizontal
+        
         if (_currentState == PlayerState.Attack || _currentState == PlayerState.Hurt)
         {
-            _rb.velocity = new Vector2(0, _rb.velocity.y);
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
             return;
         }
 
-        // Durante Crouch tampoco
+       
         if (_currentState == PlayerState.Crouch)
         {
-            _rb.velocity = new Vector2(0, _rb.velocity.y);
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
             return;
         }
 
         float move = InputHandler.Instance != null ? InputHandler.Instance.MoveInput : 0f;
-        _rb.velocity = new Vector2(move * moveSpeed, _rb.velocity.y);
+        _rb.linearVelocity = new Vector2(move * moveSpeed, _rb.linearVelocity.y);
 
-        // Girar el sprite según la dirección
+        
         if (move > 0 && !_facingRight) Flip();
         else if (move < 0 && _facingRight) Flip();
     }
@@ -192,7 +178,7 @@ public class PlayerController : MonoBehaviour
         transform.localScale = scale;
     }
 
-    // ─── Detección de suelo ────────────────────────────────────────────────────
+    
 
     private void CheckGrounded()
     {
@@ -205,24 +191,21 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    // ─── API pública (para sistema de daño, más adelante) ─────────────────────
-
-    /// <summary>Llamar desde el sistema de daño cuando el jugador recibe un golpe.</summary>
     public void EnterHurtState()
     {
         ChangeState(PlayerState.Hurt);
     }
 
-    /// <summary>Llamar cuando termina la animación de hurt.</summary>
+    
     public void ExitHurtState()
     {
         ChangeState(PlayerState.Idle);
     }
 
     public bool IsGrounded => _isGrounded;
-    public PlayerState CurrentState => _currentState;
+    private PlayerState CurrentState => _currentState;
 
-    // ─── Gizmos (visualización en el editor) ──────────────────────────────────
+   
 
     private void OnDrawGizmosSelected()
     {
