@@ -9,8 +9,10 @@ using UnityEngine.InputSystem;
 ///   - Agregar este script al GameObject _Managers en MainMenu.
 ///   - Asignar el PlayerInputActions asset en el Inspector.
 /// </summary>
-public class InputHandler : Singleton<InputHandler>
+public class InputHandler : MonoBehaviour
 {
+    public static InputHandler Instance { get; private set; }
+
     [Header("Input Actions Asset")]
     [SerializeField] private InputActionAsset inputActions;
 
@@ -34,10 +36,17 @@ public class InputHandler : Singleton<InputHandler>
     /// <summary>True mientras se mantiene presionado agacharse.</summary>
     public bool CrouchHeld { get; private set; }
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        if (Instance != this) return;
+        // Singleton manual
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         SetupActions();
     }

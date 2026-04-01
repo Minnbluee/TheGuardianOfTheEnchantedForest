@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,30 +9,36 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float spawnOffsetY = 1f;
 
     private int _lastSpawnIndex = 0;
+    private List<Enemy> _enemies = new List<Enemy>();
 
-    
     public void SpawnMossShade()
     {
         Vector2 position = GetNextSpawnPosition();
-        EnemyFactory.Create(EnemyFactory.EnemyType.MossShade, position);
+        Enemy enemy = EnemyFactory.Create(EnemyFactory.EnemyType.MossShade, position);
+        _enemies.Add(enemy);
     }
 
     public void SpawnFlyingSpore()
     {
         Vector2 position = GetNextSpawnPosition();
-        position.y += spawnOffsetY; 
-        EnemyFactory.Create(EnemyFactory.EnemyType.FlyingSpore, position);
+        position.y += spawnOffsetY;
+
+        Enemy enemy = EnemyFactory.Create(EnemyFactory.EnemyType.FlyingSpore, position);
+        _enemies.Add(enemy);
     }
 
     public void ClearAllEnemies()
     {
-        var enemies = FindObjectsOfType<Enemy>();
-        foreach (var enemy in enemies)
-            Destroy(enemy.gameObject);
+        foreach (var enemy in _enemies)
+        {
+            if (enemy != null)
+                Destroy(enemy.gameObject);
+        }
 
-        Debug.Log($"[Spawner] {enemies.Length} enemigos eliminados.");
+        _enemies.Clear();
+
+        Debug.Log("[Spawner] Enemigos eliminados.");
     }
-
 
     private Vector2 GetNextSpawnPosition()
     {

@@ -1,8 +1,10 @@
 using UnityEngine;
 
 
-public class AudioManager : Singleton<AudioManager>
+public class AudioManager : MonoBehaviour
 {
+    public static AudioManager Instance { get; private set; }
+
     [Header("Música")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioClip menuMusic;
@@ -14,12 +16,16 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private AudioClip playerHurtSFX;
     [SerializeField] private AudioClip attackSFX;
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake(); 
 
-        
-        if (Instance != this) return;
+       if (Instance != null  && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+       Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         ValidateComponents();
     }

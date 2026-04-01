@@ -3,8 +3,11 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class UIManager : Singleton<UIManager>
+public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance { get; private set; }
+
+
     [Header("HUD - Vida")]
     [SerializeField] private Image[] heartImages;
     [SerializeField] private Sprite heartFull;
@@ -30,9 +33,16 @@ public class UIManager : Singleton<UIManager>
     private int _currentHearts = 3;
     private const int MaxHearts = 3;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void ResetHearts()
