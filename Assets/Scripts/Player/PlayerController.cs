@@ -1,22 +1,8 @@
 using UnityEngine;
 
-
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    
-
-    private enum PlayerState
-    {
-        Idle,
-        Move,
-        Jump,
-        Fall,
-        Attack,
-        Crouch,
-        Hurt
-    }
-
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 6f;
 
@@ -28,144 +14,79 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
 
-    
+    // Estados
+    public IPlayerState IdleState { get; private set; }
+    public IPlayerState MoveState { get; private set; }
+    public IPlayerState JumpState { get; private set; }
+    public IPlayerState FallState { get; private set; }
+    public IPlayerState CrouchState { get; private set; }
+    public IPlayerState AttackState { get; private set; }
+    public IPlayerState HurtState { get; private set; }
 
+    private IPlayerState _currentState;
     private Rigidbody2D _rb;
-    private PlayerState _currentState;
-    private bool _isGrounded;
     private bool _facingRight = true;
+
+    
+    public float MoveInput => InputHandler.Instance != null ? InputHandler.Instance.MoveInput : 0f;
+    public bool JumpPressed => InputHandler.Instance != null && InputHandler.Instance.JumpPressed;
+    public bool AttackPressed => InputHandler.Instance != null && InputHandler.Instance.AttackPressed;
+    public bool CrouchHeld => InputHandler.Instance != null && InputHandler.Instance.CrouchHeld;
+    public float VerticalVelocity => _rb.linearVelocity.y;
+    public bool IsGrounded { get; private set; }
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+
+        IdleState = new PlayerIdleState();
+        MoveState = new PlayerMoveState();
+        JumpState = new PlayerJumpState();
+        FallState = new PlayerFallState();
+        CrouchState = new PlayerCrouchState();
+        AttackState = new PlayerAttackState();
+        HurtState = new PlayerHurtState();
     }
 
     private void Start()
     {
-        ChangeState(PlayerState.Idle);
+        ChangeState(IdleState);
     }
 
     private void Update()
     {
         CheckGrounded();
-        HandleFSM();
+        _currentState?.Update(this);
     }
 
     private void FixedUpdate()
     {
-        ApplyMovement();
+        _currentState?.FixedUpdate(this);
     }
 
-
-    private void HandleFSM()
-    {
-       
-        if (_currentState == PlayerState.Hurt) return;
-
-        switch (_currentState)
-        {
-            case PlayerState.Idle:
-            case PlayerState.Move:
-                HandleGroundedStates();
-                break;
-
-            case PlayerState.Jump:
-            case PlayerState.Fall:
-                HandleAirborneStates();
-                break;
-
-            case PlayerState.Crouch:
-                HandleCrouchState();
-                break;
-        }
-    }
-
-    private void HandleGroundedStates()
-    {
-        
-        if (InputHandler.Instance.CrouchHeld)
-        {
-            ChangeState(PlayerState.Crouch);
-            return;
-        }
-
-        if (InputHandler.Instance.JumpPressed)
-        {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
-            ChangeState(PlayerState.Jump);
-            return;
-        }
-
-      
-        if (InputHandler.Instance.AttackPressed)
-        {
-            ChangeState(PlayerState.Attack);
-            return;
-        }
-
-        
-        if (Mathf.Abs(InputHandler.Instance.MoveInput) > 0.01f)
-            ChangeState(PlayerState.Move);
-        else
-            ChangeState(PlayerState.Idle);
-    }
-
-    private void HandleAirborneStates()
-    {
-        
-        if (_rb.linearVelocity.y < -0.1f)
-            ChangeState(PlayerState.Fall);
-        else if (_rb.linearVelocity.y > 0.1f)
-            ChangeState(PlayerState.Jump);
-
-        
-        if (_isGrounded && _rb.linearVelocity.y <= 0)
-        {
-            ChangeState(Mathf.Abs(InputHandler.Instance.MoveInput) > 0.01f
-                ? PlayerState.Move
-                : PlayerState.Idle);
-        }
-    }
-
-    private void HandleCrouchState()
-    {
-        if (!InputHandler.Instance.CrouchHeld)
-        {
-            ChangeState(PlayerState.Idle);
-        }
-    }
-
-    private void ChangeState(PlayerState newState)
+    public void ChangeState(IPlayerState newState)
     {
         if (_currentState == newState) return;
-
+        _currentState?.Exit(this);
         _currentState = newState;
-        Debug.Log($"[Player] Estado: {_currentState}"); 
+        _currentState.Enter(this);
     }
 
-
-    private void ApplyMovement()
+    // Métodos de movimiento que usan los estados
+    public void ApplyHorizontalVelocity(float input)
     {
-        
-        if (_currentState == PlayerState.Attack || _currentState == PlayerState.Hurt)
-        {
-            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
-            return;
-        }
+        _rb.linearVelocity = new Vector2(input * moveSpeed, _rb.linearVelocity.y);
+    }
 
-       
-        if (_currentState == PlayerState.Crouch)
-        {
-            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
-            return;
-        }
+    public void ApplyJumpForce()
+    {
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
+    }
 
-        float move = InputHandler.Instance != null ? InputHandler.Instance.MoveInput : 0f;
-        _rb.linearVelocity = new Vector2(move * moveSpeed, _rb.linearVelocity.y);
-
-        
-        if (move > 0 && !_facingRight) Flip();
-        else if (move < 0 && _facingRight) Flip();
+    public void HandleFlip()
+    {
+        if (MoveInput > 0 && !_facingRight) Flip();
+        else if (MoveInput < 0 && _facingRight) Flip();
     }
 
     private void Flip()
@@ -176,34 +97,15 @@ public class PlayerController : MonoBehaviour
         transform.localScale = scale;
     }
 
-    
-
     private void CheckGrounded()
     {
         if (groundCheck == null) return;
-
-        _isGrounded = Physics2D.OverlapCircle(
-            groundCheck.position,
-            groundCheckRadius,
-            groundLayer
-        );
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
-    public void EnterHurtState()
-    {
-        ChangeState(PlayerState.Hurt);
-    }
-
-    
-    public void ExitHurtState()
-    {
-        ChangeState(PlayerState.Idle);
-    }
-
-    public bool IsGrounded => _isGrounded;
-    private PlayerState CurrentState => _currentState;
-
-   
+    // Métodos públicos que usa PlayerAttack (TP2) — no cambian
+    public void EnterHurtState() => ChangeState(HurtState);
+    public void ExitHurtState() => ChangeState(IdleState);
 
     private void OnDrawGizmosSelected()
     {
