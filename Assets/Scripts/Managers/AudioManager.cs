@@ -1,8 +1,9 @@
 using UnityEngine;
 
-
-public class AudioManager : Singleton<AudioManager>
+public class AudioManager : MonoBehaviour
 {
+    public static AudioManager Instance;
+
     [Header("Música")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioClip menuMusic;
@@ -14,12 +15,17 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private AudioClip playerHurtSFX;
     [SerializeField] private AudioClip attackSFX;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake(); 
-
-        
-        if (Instance != this) return;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
         ValidateComponents();
     }
@@ -27,11 +33,10 @@ public class AudioManager : Singleton<AudioManager>
     private void ValidateComponents()
     {
         if (musicSource == null)
-            Debug.LogError("[AudioManager] Falta asignar el AudioSource de música en el Inspector.");
+            Debug.LogError("Falta asignar el AudioSource de música en el Inspector.");
         if (sfxSource == null)
-            Debug.LogError("[AudioManager] Falta asignar el AudioSource de SFX en el Inspector.");
+            Debug.LogError("Falta asignar el AudioSource de SFX en el Inspector.");
     }
-
 
     public void PlayMenuMusic()
     {
@@ -46,7 +51,6 @@ public class AudioManager : Singleton<AudioManager>
     private void PlayMusic(AudioClip clip)
     {
         if (musicSource == null || clip == null) return;
-
         if (musicSource.clip == clip && musicSource.isPlaying) return;
 
         musicSource.clip = clip;
@@ -66,7 +70,6 @@ public class AudioManager : Singleton<AudioManager>
         if (musicSource != null)
             musicSource.volume = volume;
     }
-
 
     public void PlayCollectDiamond()
     {

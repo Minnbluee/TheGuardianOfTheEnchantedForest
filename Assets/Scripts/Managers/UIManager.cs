@@ -2,9 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-
-public class UIManager : Singleton<UIManager>
+public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance;
+
     [Header("HUD - Vida")]
     [SerializeField] private Image[] heartImages;
     [SerializeField] private Sprite heartFull;
@@ -17,22 +18,30 @@ public class UIManager : Singleton<UIManager>
     [Header("HUD - Puntos")]
     private TMP_Text scoreText;
 
+    private int _currentDiamonds = 0;
+    private int _currentScore = 0;
+    private int _currentHearts = 3;
+    private const int MaxHearts = 3;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void SetupHUD(TMP_Text diamonds, TMP_Text score)
     {
         diamondText = diamonds;
         scoreText = score;
         UpdateDiamondUI();
         UpdateScoreUI();
-    }
-
-    private int _currentDiamonds = 0;
-    private int _currentScore = 0;
-    private int _currentHearts = 3;
-    private const int MaxHearts = 3;
-
-    protected override void Awake()
-    {
-        base.Awake();
     }
 
     public void ResetHearts()
@@ -44,17 +53,14 @@ public class UIManager : Singleton<UIManager>
     public bool LoseHeart()
     {
         if (_currentHearts <= 0) return false;
-
         _currentHearts--;
         UpdateHeartsUI();
-
         return _currentHearts > 0;
     }
 
     private void UpdateHeartsUI()
     {
         if (heartImages == null) return;
-
         for (int i = 0; i < heartImages.Length; i++)
         {
             if (heartImages[i] == null) continue;
@@ -62,7 +68,6 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
-  
     public void ResetDiamonds()
     {
         _currentDiamonds = 0;
@@ -73,7 +78,6 @@ public class UIManager : Singleton<UIManager>
     {
         _currentDiamonds++;
         UpdateDiamondUI();
-
         return _currentDiamonds >= diamondsRequired;
     }
 
@@ -82,7 +86,6 @@ public class UIManager : Singleton<UIManager>
         if (diamondText != null)
             diamondText.text = $"Diamantes: {_currentDiamonds} / {diamondsRequired}";
     }
-
 
     public void ResetScore()
     {
@@ -101,7 +104,6 @@ public class UIManager : Singleton<UIManager>
         if (scoreText != null)
             scoreText.text = $"Puntos: {_currentScore}";
     }
-
 
     public int CurrentHearts => _currentHearts;
     public int CurrentDiamonds => _currentDiamonds;
