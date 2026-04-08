@@ -25,7 +25,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void ClearAllEnemies()
     {
-        var enemies = FindObjectsOfType<Enemy>();
+        var enemies = FindObjectsByType<Enemy>();
         foreach (var enemy in enemies)
             Destroy(enemy.gameObject);
 
