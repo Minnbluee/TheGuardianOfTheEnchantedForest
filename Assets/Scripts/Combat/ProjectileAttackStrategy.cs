@@ -25,14 +25,14 @@ public class ProjectileAttackStrategy : IAttackStrategy
         }
         else
         {
-            projectile = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            projectile = new GameObject("Proyectil");
             projectile.transform.position = origin.position;
             projectile.transform.localScale = Vector3.one * 0.3f;
 
             var sr = projectile.AddComponent<SpriteRenderer>();
             sr.color = Color.red;
 
-            Object.Destroy(projectile.GetComponent<MeshCollider>());
+            projectile.AddComponent<BoxCollider2D>().isTrigger = true;
         }
 
         var proj = projectile.AddComponent<Projectile>();
