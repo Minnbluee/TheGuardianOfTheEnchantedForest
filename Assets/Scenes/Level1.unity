@@ -358,7 +358,7 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 3469111235747954170, guid: 08579269f6a76f042b30f007769821df, type: 3}
 --- !u!1 &201242490
 GameObject:
   m_ObjectHideFlags: 0
