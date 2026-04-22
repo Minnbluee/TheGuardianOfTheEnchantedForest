@@ -2,20 +2,14 @@ using UnityEngine;
 
 public class FlyingSporeEnemy : Enemy
 {
-    [Header("Movimiento")]
-    private float horizontalSpeed;
-    private float waveAmplitude = 1.5f;
-    private float waveFrequency = 2f;
-
     private Vector2 _startPosition;
     private float _timeOffset;
 
-    public override void Initialize(EnemyData data)
+    public override void Initialize(EnemyData enemyData)
     {
-        base.Initialize(data);
+        base.Initialize(enemyData);
         _startPosition = transform.position;
         _timeOffset = Random.Range(0f, Mathf.PI * 2f);
-        horizontalSpeed = data.moveSpeed;
     }
 
     private void Update()
@@ -25,8 +19,8 @@ public class FlyingSporeEnemy : Enemy
 
     public override void Behave()
     {
-        float newX = transform.position.x + horizontalSpeed * Time.deltaTime;
-        float newY = _startPosition.y + Mathf.Sin((Time.time + _timeOffset) * waveFrequency) * waveAmplitude;
+        float newX = transform.position.x + data.moveSpeed * Time.deltaTime;
+        float newY = _startPosition.y + Mathf.Sin((Time.time + _timeOffset) * data.waveFrequency) * data.waveAmplitude;
 
         transform.position = new Vector2(newX, newY);
     }

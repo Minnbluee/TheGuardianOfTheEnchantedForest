@@ -2,18 +2,16 @@ using UnityEngine;
 
 public class MossShadeEnemy : Enemy
 {
-    [Header("Patrulla")]
-    private float patrolSpeed;
-    private float patrolRange = 3f;
-
+    private float _patrolRange;
     private Vector2 _startPosition;
     private int _direction = 1;
 
-    public override void Initialize(EnemyData data)
+    public override void Initialize(EnemyData enemyData)
     {
-        base.Initialize(data);
+        base.Initialize(enemyData);
+        _patrolRange = enemyData.patrolRange;
         _startPosition = transform.position;
-        patrolSpeed = data.moveSpeed;
+        _direction = 1;
     }
 
     private void Update()
@@ -23,13 +21,13 @@ public class MossShadeEnemy : Enemy
 
     public override void Behave()
     {
-        transform.Translate(Vector2.right * _direction * patrolSpeed * Time.deltaTime);
+        transform.Translate(Vector2.right * _direction * data.moveSpeed * Time.deltaTime);
 
         float distanceFromStart = transform.position.x - _startPosition.x;
 
-        if (distanceFromStart >= patrolRange)
+        if (distanceFromStart >= _patrolRange)
             _direction = -1;
-        else if (distanceFromStart <= -patrolRange)
+        else if (distanceFromStart <= -_patrolRange)
             _direction = 1;
     }
 }
