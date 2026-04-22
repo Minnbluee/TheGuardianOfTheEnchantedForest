@@ -7,6 +7,10 @@ public class EnemySpawner : MonoBehaviour
     [Header("Familia activa")]
     [SerializeField] private FactoryType activeFactory = FactoryType.Forest;
 
+    [Header("Factories")]
+    [SerializeField] private ForestEnemyFactory forestFactory;
+    [SerializeField] private CorruptEnemyFactory corruptFactory;
+
     [Header("Puntos de Spawn")]
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private float spawnOffsetY = 1f;
@@ -23,8 +27,8 @@ public class EnemySpawner : MonoBehaviour
     {
         activeFactory = type;
         _factory = type == FactoryType.Forest
-            ? (IEnemyFactory)new ForestEnemyFactory()
-            : new CorruptEnemyFactory();
+            ? (IEnemyFactory)forestFactory
+            : corruptFactory;
 
         Debug.Log($"[Spawner] Familia activa: {type}");
     }

@@ -1,21 +1,24 @@
 using UnityEngine;
 
-
 public abstract class Enemy : MonoBehaviour
 {
-    [Header("Stats base")]
-    [SerializeField] protected float maxHealth = 3f;
+    protected EnemyData data;
     protected float currentHealth;
 
-    [Header("Puntos al morir")]
-    [SerializeField] protected int scoreValue = 100;
-
-    protected virtual void Awake()
+    public virtual void Initialize(EnemyData enemyData)
     {
-        currentHealth = maxHealth;
+        data = enemyData;
+        currentHealth = data.maxHealth;
+        gameObject.name = data.enemyName;
+
+        var sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.sprite = data.sprite;
+            sr.color = data.color;
+        }
     }
 
-    
     public virtual void TakeDamage(float amount)
     {
         currentHealth -= amount;
@@ -28,10 +31,9 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void Die()
     {
         Debug.Log($"[Enemy] {gameObject.name} murió.");
-        UIManager.Instance?.AddScore(scoreValue);
+        UIManager.Instance?.AddScore(data.scoreValue);
         Destroy(gameObject);
     }
 
-   
     public abstract void Behave();
 }

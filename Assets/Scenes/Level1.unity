@@ -639,6 +639,7 @@ GameObject:
   m_Component:
   - component: {fileID: 385785581}
   - component: {fileID: 385785580}
+  - component: {fileID: 385785583}
   - component: {fileID: 385785582}
   m_Layer: 0
   m_Name: EnemySpawner
@@ -660,6 +661,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   activeFactory: 0
+  forestFactory: {fileID: 385785583}
+  corruptFactory: {fileID: 385785582}
   spawnPoints: []
   spawnOffsetY: 1
 --- !u!4 &385785581
@@ -677,27 +680,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &385785582
-BoxCollider:
+--- !u!114 &385785582
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385785579}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ac947b618265d547a1bcdb4e14d7a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CorruptEnemyFactory
+  mossShadeData: {fileID: 11400000, guid: d4377f6eca8608e419bd5706ae0fa9e2, type: 2}
+  flyingSporeData: {fileID: 11400000, guid: 18e6385fd90f676468304b470e8377de, type: 2}
+--- !u!114 &385785583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385785579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afffa9e693d551d42a82fdfbcb744edc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ForestEnemyFactory
+  mossShadeData: {fileID: 11400000, guid: e32131d4e2030d446bab28c5e0704594, type: 2}
+  flyingSporeData: {fileID: 11400000, guid: 9970f210b87223e4490ea85aa1249098, type: 2}
 --- !u!1 &436099350
 GameObject:
   m_ObjectHideFlags: 0
@@ -1834,9 +1844,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 179526741}
-        m_TargetAssemblyTypeName: PlayerAttack, Assembly-CSharp
-        m_MethodName: SwitchToProjectile
+      - m_Target: {fileID: 385785580}
+        m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+        m_MethodName: SwitchToForest
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1967,9 +1977,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 179526741}
-        m_TargetAssemblyTypeName: PlayerAttack, Assembly-CSharp
-        m_MethodName: SwitchToProjectile
+      - m_Target: {fileID: 385785580}
+        m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+        m_MethodName: SwitchToCorrupt
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

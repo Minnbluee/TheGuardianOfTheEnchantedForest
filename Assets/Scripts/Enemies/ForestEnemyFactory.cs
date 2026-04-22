@@ -1,24 +1,18 @@
 using UnityEngine;
 
-public class ForestEnemyFactory : IEnemyFactory
+public class ForestEnemyFactory : MonoBehaviour, IEnemyFactory
 {
+    [Header("Assets de enemigos - Familia Bosque")]
+    [SerializeField] private EnemyData mossShadeData;
+    [SerializeField] private EnemyData flyingSporeData;
+
     public Enemy CreateMossShade(Vector2 position)
     {
-        return EnemyCreator.Build<MossShadeEnemy>(
-            name: "Musgo [Bosque]",
-            position: position,
-            color: new Color(0.2f, 0.6f, 0.2f),
-            hasGravity: true
-        );
+        return EnemyCreator.Build<MossShadeEnemy>(mossShadeData, position, hasGravity: true);
     }
 
     public Enemy CreateFlyingSpore(Vector2 position)
     {
-        return EnemyCreator.Build<FlyingSporeEnemy>(
-            name: "Espora [Bosque]",
-            position: position,
-            color: new Color(0.6f, 0.2f, 0.8f),
-            hasGravity: false
-        );
+        return EnemyCreator.Build<FlyingSporeEnemy>(flyingSporeData, position, hasGravity: false);
     }
 }

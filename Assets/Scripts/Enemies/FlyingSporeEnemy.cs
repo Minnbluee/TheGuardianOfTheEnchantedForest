@@ -1,24 +1,21 @@
 using UnityEngine;
 
-
 public class FlyingSporeEnemy : Enemy
 {
     [Header("Movimiento")]
-    [SerializeField] private float horizontalSpeed = 2f;
-    [SerializeField] private float waveAmplitude = 1.5f;
-    [SerializeField] private float waveFrequency = 2f;
+    private float horizontalSpeed;
+    private float waveAmplitude = 1.5f;
+    private float waveFrequency = 2f;
 
     private Vector2 _startPosition;
     private float _timeOffset;
 
-    protected override void Awake()
+    public override void Initialize(EnemyData data)
     {
-        base.Awake();
+        base.Initialize(data);
         _startPosition = transform.position;
-        _timeOffset = Random.Range(0f, Mathf.PI * 2f); 
-
-        var sr = GetComponent<SpriteRenderer>();
-        if (sr != null) sr.color = new Color(0.6f, 0.1f, 0.8f);
+        _timeOffset = Random.Range(0f, Mathf.PI * 2f);
+        horizontalSpeed = data.moveSpeed;
     }
 
     private void Update()
